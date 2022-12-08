@@ -81,9 +81,10 @@ WHERE (cd = '12x' or cd = '24x') AND price < 600
 https://sql-ex.ru/learn_exercises.php?LN=6
 
 ```sql
-SELECT maker, speed  
-FROM Product inner join Laptop on Product.model = Laptop.model   
-WHERE hd >= 10
+SELECT DISTINCT p.maker, l.speed
+FROM laptop l
+JOIN product p ON p.model = l.model
+WHERE l.hd >= 10
 ```
 ## 7
 
