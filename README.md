@@ -39,7 +39,16 @@
 + [38](#38)
 + [39](#39)
 + [40](#40)
-
++ [41](#40)
++ [42](#42)
++ [43](#43)
++ [44](#44)
++ [45](#45)
++ [46](#46)
++ [47](#47)
++ [48](#48)
++ [49](#49)
++ [50](#50)
 
 
 # Задачи и решения 
@@ -498,3 +507,153 @@ WHERE maker in (SELECT maker FROM
 (SELECT maker, type FROM Product GROUP BY maker, type) Alias
 GROUP BY maker having count(maker) = 1) GROUP BY maker, type HAVING count(type)>1
 ```
+
+## 41
+
+https://sql-ex.ru/learn_exercises.php?LN=41
+
+```sql
+WITH D as
+(SELECT model, price FROM PC
+UNION
+SELECT model, price FROM Laptop
+UNION
+SELECT model, price FROM Printer)
+SELECT distinct P.maker,
+CASE WHEN MAX(CASE WHEN D.price IS NULL THEN 1 ELSE 0 END) = 0 THEN
+max(D.price) end
+FROM Product P
+RIGHT JOIN D ON P.model=D.model
+GROUP BY P.maker
+```
+
+## 42
+
+https://sql-ex.ru/learn_exercises.php?LN=42
+
+```sql
+SELECT 
+	ship, battle
+FROM Outcomes
+WHERE result = 'sunk'
+```
+
+## 43
+
+https://sql-ex.ru/learn_exercises.php?LN=43
+
+```sql
+SELECT name 
+FROM battles 
+WHERE DATEPART(yy, date) not in (select DATEPART(yy, date)  
+FROM battles 
+JOIN ships on DATEPART(yy, date)=launched)
+```
+
+## 44
+
+https://sql-ex.ru/learn_exercises.php?LN=44
+
+```sql
+SELECT name 
+FROM ships 
+WHERE name like 'R%'   
+UNION   
+SELECT name 
+FROM battles 
+WHERE name like 'R%'   
+UNION   
+SELECT ship 
+FROM outcomes 
+WHERE ship like 'R%'
+```
+
+## 45
+
+https://sql-ex.ru/learn_exercises.php?LN=45
+
+```sql
+SELECT name 
+FROM ships 
+WHERE name like '% % %'  
+UNION   
+SELECT ship 
+FROM outcomes 
+WHERE ship like '% % %'  
+```
+
+## 46
+
+https://sql-ex.ru/learn_exercises.php?LN=46
+
+```sql
+SELECT name as n, displacement as d, numguns as ng 
+FROM ships 
+INNER JOIN classes ON ships.class=classes.class 
+WHERE name in (SELECT ship FROM outcomes WHERE battle = 'Guadalcanal')   
+UNION 
+SELECT ship as n, displacement as d, numguns as ng 
+FROM outcomes
+INNER JOIN classes ON outcomes.ship=classes.class 
+WHERE battle = 'Guadalcanal' and ship not in (select name from ships)   
+UNION  
+SELECT ship as n, null as d, null as ng 
+FROM outcomes 
+WHERE battle = 'Guadalcanal' and ship not in (select name from ships) and ship not in  (select class from classes)     
+```
+
+## 47
+
+https://sql-ex.ru/learn_exercises.php?LN=47
+
+```sql
+WITH out AS (SELECT *
+FROM outcomes JOIN (SELECT ships.name s_name, classes.class s_class, classes.country s_country
+FROM ships FULL JOIN classes
+ON ships.class = classes.class
+) u
+ON outcomes.ship=u.s_class
+UNION
+SELECT *
+FROM outcomes JOIN (SELECT ships.name s_name, classes.class s_class, classes.country s_country
+FROM ships FULL JOIN classes
+ON ships.class = classes.class
+) u
+ON outcomes.ship=u.s_name)
+SELECT fin.country
+FROM (
+SELECT DISTINCT t.country, COUNT(t.name) AS num_ships
+FROM (
+SELECT distinct c.country, s.name
+FROM classes c
+INNER JOIN Ships s ON s.class= c.class
+UNION
+SELECT distinct c.country, o.ship
+FROM classes c
+INNER JOIN Outcomes o on o.ship= c.class) t
+GROUP BY t.country
+INTERSECT
+SELECT out.s_country, COUNT(out.ship) AS num_ships
+FROM out
+WHERE out.result='sunk'
+GROUP BY out.s_country) fin   
+```
+
+## 48
+
+https://sql-ex.ru/learn_exercises.php?LN=48
+
+```sql
+SELECT class
+FROM classes t1 
+LEFT JOIN outcomes t2 on t1.class=t2.ship 
+WHERE result='sunk'
+UNION
+SELECT class
+FROM ships 
+LEFT JOIN outcomes on ships.name=outcomes.ship 
+WHERE result='sunk'
+```
+
+
+
