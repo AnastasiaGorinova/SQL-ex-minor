@@ -24,7 +24,21 @@
 + [23](#23)
 + [24](#24)
 + [25](#25)
-
++ [26](#26)
++ [27](#27)
++ [28](#28)
++ [29](#29)
++ [30](#30)
++ [31](#31)
++ [32](#32)
++ [33](#33)
++ [34](#34)
++ [35](#35)
++ [36](#36)
++ [37](#37)
++ [38](#38)
++ [39](#39)
++ [40](#40)
 
 
 
@@ -235,4 +249,252 @@ SELECT maker, count(model) as Count_Model
 FROM product 
 WHERE type = 'pc' 
 GROUP BY maker having count(model) >= 3;
+```
+## 21 
+
+https://sql-ex.ru/learn_exercises.php?LN=21
+
+```sql
+SELECT maker , max(price) as Max_price 
+FROM pc 
+INNER JOIN product ON pc.model= product.model  
+GROUP BY maker
+```
+## 22
+
+https://sql-ex.ru/learn_exercises.php?LN=22
+
+```sql
+ SELECT speed, avg(price) 
+ FROM pc 
+ WHERE speed > '600' 
+ GROUP by speed
+```
+## 23
+
+https://sql-ex.ru/learn_exercises.php?LN=23
+
+```sql
+SELECT p.maker 
+FROM product p 
+JOIM pc pc ON p.model = pc.model 
+WHERE pc.speed >= '750' intersect 
+SELECT p.maker 
+FROM product p 
+JOIN laptop l ON p.model = l.model 
+WHERE l.speed >= '750'
+```
+
+## 24
+
+https://sql-ex.ru/learn_exercises.php?LN=24
+
+```sql
+WITH all_model AS (
+SELECT model, price FROM pc
+UNION ALL
+SELECT model, price FROM printer
+UNION ALL
+SELECT model, price FROM laptop )
+SELECT distinct model
+FROM all_model WHERE price = ALL ( SELECT max(price) FROM all_model)
+```
+
+## 25
+
+https://sql-ex.ru/learn_exercises.php?LN=25
+
+```sql
+SELECT distinct product.maker FROM product WHERE product.type='Printer'  
+INTERSECT 
+SELECT distinct product.maker FROM product INNER JOIN pc ON pc.model=product.model  
+WHERE product.type='PC' AND pc.ram=(SELECT MIN(ram) FROM pc)  
+AND pc.speed = (SELECT MAX(speed) FROM (SELECT distinct speed FROM pc 
+WHERE pc.ram=(SELECT MIN(ram) FROM pc)) as t)
+```
+## 26
+
+https://sql-ex.ru/learn_exercises.php?LN=26
+
+```sql
+SELECT t1.c/t1.d 
+FROM( SELECT SUM(t.a) as c, SUM(t.b) as d 
+FROM(  
+SELECT SUM(pc.price) as a, COUNT(pc.code) as b FROM pc 
+INNER JOIN product ON pc.model=product.model WHERE product.maker='A'  
+UNION 
+SELECT SUM(laptop.price) as a, COUNT(laptop.code) as b FROM laptop 
+INNER JOIN product ON laptop.model=product.model WHERE product.maker='A') as t) as t1  
+```
+## 27
+
+https://sql-ex.ru/learn_exercises.php?LN=27
+
+```sql
+SELECT maker,avg(hd)  
+FROM product 
+INNER JOIN pc ON product.model=pc.model   
+WHERE maker in(select maker  from product  where type='printer')  
+GROUP BY maker  
+```
+## 28
+
+https://sql-ex.ru/learn_exercises.php?LN=28
+
+```sql
+SELECT count(maker) as qty 
+FROM (SELECT distinct maker
+FROM product 
+GROUP BY maker having count(model) = 1) AS prod
+```
+## 29
+
+https://sql-ex.ru/learn_exercises.php?LN=29
+
+```sql
+SELECT i.point, i.date, inc, out 
+FROM income_o i 
+LEFT JOIN outcome_o o on i.point = o.point and i.date = o.date
+UNION
+SELECT o.point, o.date, inc, out
+FROM income_o i 
+RIGHT JOIN outcome_o o on i.point = o.point and i.date = o.date
+```
+
+## 30 
+
+https://sql-ex.ru/learn_exercises.php?LN=30
+
+```sql
+SELECT point, date, SUM(sum_out), SUM(sum_inc)
+FROM( select point, date, SUM(inc) as sum_inc, null as sum_out 
+FROM Income 
+GROUP BY point, date
+UNION
+SELECT point, date, null as sum_inc, SUM(out) as sum_out 
+FROM Outcome 
+GROUP BY point, date ) as t
+GROUP BY point, date 
+ORDER BY point
+```
+
+## 31
+
+https://sql-ex.ru/learn_exercises.php?LN=31
+
+```sql
+SELECT class, country 
+FROM classes 
+WHERE bore >= '16'
+```
+
+## 32
+
+https://sql-ex.ru/learn_exercises.php?LN=32
+
+```sql
+SELECT country, cast(avg((power(bore,3)/2)) as numeric(6,2)) as weight 
+FROM (select country, classes.class, bore, name 
+FROM classes 
+LEFT JOIN ships ON classes.class=ships.class  
+UNION ALL
+SELECT distinct country, class, bore, ship 
+FROM classes t1 
+LEFT JOIN outcomes t2 ON t1.class=t2.ship  
+WHERE ship=class and ship not in (select name from ships) ) a  
+WHERE name!='null' 
+GROUP BY country
+```
+
+## 33
+
+https://sql-ex.ru/learn_exercises.php?LN=33
+
+```sql
+SELECT ship 
+FROM outcomes,battles 
+WHERE result= 'sunk' and battle = 'North Atlantic' 
+GROUP BY ship  
+```
+
+## 34
+
+https://sql-ex.ru/learn_exercises.php?LN=34
+
+```sql
+SELECT name 
+FROM classes,ships 
+WHERE launched >=1922 and displacement>35000 and type='bb' and ships.class = classes.class 
+```
+
+## 35
+
+https://sql-ex.ru/learn_exercises.php?LN=35
+
+```sql
+SELECT name 
+FROM classes,ships 
+WHERE launched >=1922 and displacement>35000 and type='bb' and ships.class = classes.class 
+```
+
+## 36
+
+https://sql-ex.ru/learn_exercises.php?LN=36
+
+```sql
+SELECT distinct c.class 
+FROM classes c 
+JOIN outcomes o ON c.class = o.ship
+UNION
+SELECT distinct c.class 
+FROM classes c join ships s ON c.class = s.class 
+WHERE s.class = s.name
+```
+
+## 37
+
+https://sql-ex.ru/learn_exercises.php?LN=37
+
+```sql
+SELECT class FROM(select class, name FROM ships
+UNION
+SELECT class, ship as name 
+FROM outcomes 
+JOIN classes ON classes.class = outcomes.ship) as A
+GROUP BY class 
+HAVING count(A.name)=1
+```
+
+## 38
+
+https://sql-ex.ru/learn_exercises.php?LN=38
+
+```sql
+SELECT country FROM classes where type = 'bb'
+INTERSECT
+SELECT country FROM classes where type = 'bc'
+```
+
+## 39
+
+https://sql-ex.ru/learn_exercises.php?LN=39
+
+```sql
+SELECT distinct o.ship 
+FROM outcomes o join battles b ON o.battle = b.name 
+WHERE o.result = 'damaged' AND EXISTS (SELECT battles.date
+FROM battles join outcomes ON outcomes.battle = battles.name
+WHERE battles.date > b.date and outcomes.ship = o.ship)
+```
+
+## 40
+
+https://sql-ex.ru/learn_exercises.php?LN=40
+
+```sql
+SELECT maker, type 
+FROM product
+WHERE maker in (SELECT maker FROM
+(SELECT maker, type FROM Product GROUP BY maker, type) Alias
+GROUP BY maker having count(maker) = 1) GROUP BY maker, type HAVING count(type)>1
 ```
