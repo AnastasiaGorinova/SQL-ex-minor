@@ -655,5 +655,421 @@ LEFT JOIN outcomes on ships.name=outcomes.ship
 WHERE result='sunk'
 ```
 
+## 49
+
+https://sql-ex.ru/learn_exercises.php?LN=49
+
+```sql
+
+SELECT s.name 
+FROM ships s 
+JOIN classes c ON s.name=c.class OR s.class = c.class 
+WHERE c.bore = 16
+UNION
+SELECT o.ship 
+FROM outcomes o 
+JOIN classes c on o.ship=c.class
+WHERE c.bore = 16
+  
+```
+
+## 50
+
+https://sql-ex.ru/learn_exercises.php?LN=50
+
+```sql
+
+SELECT distinct o.battle 
+FROM ships s 
+JOIN outcomes o on s.name = o.ship 
+WHERE s.class = 'kongo'
+
+```
+
+## 51
+
+https://sql-ex.ru/learn_exercises.php?LN=51
+
+```sql
+
+
+SELECT NAME 
+FROM(select name as NAME, displacement, numguns from ships inner join classes on ships.class = classes.class union select ship as NAME, displacement, numguns from outcomes inner join classes on outcomes.ship= classes.class) as d1 inner join (select displacement, max(numGuns) as numguns from ( select displacement, numguns from ships inner join classes on ships.class = classes.class union select displacement, numguns from outcomes inner join classes on outcomes.ship= classes.class) as f group by displacement) as d2 on d1.displacement=d2.displacement and d1.numguns =d2.numguns
+  
+```
+
+## 52
+
+https://sql-ex.ru/learn_exercises.php?LN=52
+
+```sql
+SELECT s.name 
+FROM ships s 
+JOIN classes c on s.class = c.class 
+WHERE country = 'japan' and (numGuns >= '9' or numGuns is null) and (bore < '19' or bore is null) and (displacement <= '65000' or displacement is null) and type='bb'
+  
+```
+
+## 53
+
+https://sql-ex.ru/learn_exercises.php?LN=53
+
+```sql
+
+SELECT CAST(AVG(numguns*1.0) AS NUMERIC(6,2)) as Avg_nmg 
+FROM classes 
+WHERE type = 'bb'
+```
+
+## 54
+
+https://sql-ex.ru/learn_exercises.php?LN=54
+
+```sql
+
+    SELECT CAST(AVG(numguns*1.0) AS NUMERIC(6,2)) as AVG_nmg from (select ship, numguns, type from Outcomes join classes on ship = class
+UNION
+SELECT name, numguns, type 
+FROM ships s 
+JOIN classes c on c.class = s.class) as x 
+WHERE type = 'bb'
+
+```
+
+## 55
+
+https://sql-ex.ru/learn_exercises.php?LN=55
+
+```sql
+
+SELECT c.class, min(s.launched) 
+FROM classes c 
+LEFT JOIN ships s on c.class = s.class 
+GROUP BY c.class
+
+```
+
+## 56
+
+https://sql-ex.ru/learn_exercises.php?LN=56
+
+```sql
+
+
+SELECT c.class, COUNT(s.ship)
+FROM classes c
+LEFT JOIN (SELECT o.ship, sh.class
+FROM outcomes o
+LEFT JOIN ships sh ON sh.name = o.ship
+WHERE o.result = 'sunk') AS s ON s.class = c.class OR s.ship = c.class
+GROUP BY c.class
+  
+```
+
+## 57
+
+https://sql-ex.ru/learn_exercises.php?LN=57
+
+```sql
+
+
+SELECT class, COUNT(ship) count_sunked
+FROM (SELECT name, class FROM ships
+UNION
+SELECT ship, ship FROM outcomes) t
+LEFT JOIN outcomes ON name = ship AND result = 'sunk'
+GROUP BY class
+HAVING COUNT(ship) > 0 AND COUNT(*) > 2
+  
+```
+
+## 58
+
+https://sql-ex.ru/learn_exercises.php?LN=58
+
+```sql
+
+
+SELECT m, t,
+CAST(100.0*cc/cc1 AS NUMERIC(5,2))
+FROM
+(SELECT m, t, sum(c) cc from
+(SELECT distinct maker m, 'PC' t, 0 c from product
+union all
+SELECT distinct maker, 'Laptop', 0 from product
+union all
+SELECT distinct maker, 'Printer', 0 from product
+union all
+SELECT maker, type, count(*) from product
+group by maker, type) as tt
+group by m, t) tt1
+JOIN (
+SELECT maker, count(*) cc1 from product group by maker
+) tt2
+ON m=maker
+  
+```
+
+## 59
+
+https://sql-ex.ru/learn_exercises.php?LN=59
+
+```sql
+
+SELECT c1, c2-
+(CASE
+WHEN o2 is null THEN 0
+ELSE o2
+END)
+from
+(SELECT point c1, sum(inc) c2 FROM income_o
+group by point) as t1
+left join
+(SELECT point o1, sum(out) o2 FROM outcome_o
+group by point) as t2
+on c1=o1
+  
+```
+
+## 60
+
+https://sql-ex.ru/learn_exercises.php?LN=60
+
+```sql
+
+SELECT c1, c2-
+(CASE
+WHEN o2 is null THEN 0
+ELSE o2
+END)
+from
+(SELECT point c1, sum(inc) c2 FROM income_o
+where date<'2001-04-15'
+group by point) as t1
+left join
+(SELECT point o1, sum(out) o2 FROM outcome_o
+where date<'2001-04-15'
+group by point) as t2
+on c1=o1
+  
+```
+
+## 61
+
+https://sql-ex.ru/learn_exercises.php?LN=61
+
+```sql
+
+SELECT sum(i) FROM
+(SELECT point, sum(inc) as i FROM
+income_o
+group by point
+UNION
+SELECT point, -sum(out) as i FROM
+outcome_o
+group by point
+) as t
+  
+```
+
+## 62
+
+https://sql-ex.ru/learn_exercises.php?LN=62
+
+```sql
+
+SELECT
+(SELECT sum(inc) FROM Income_o WHERE date<'2001-04-15')
+-
+(SELECT sum(out) FROM Outcome_o WHERE date<'2001-04-15')
+AS remain
+
+```
+
+## 63
+
+https://sql-ex.ru/learn_exercises.php?LN=63
+
+```sql
+
+ 
+SELECT name FROM Passenger
+WHERE ID_psg in
+(SELECT ID_psg FROM Pass_in_trip
+GROUP BY place, ID_psg
+HAVING count(*)>1)
+  
+
+```
+
+## 64
+
+https://sql-ex.ru/learn_exercises.php?LN=64
+
+```sql
+
+SELECT i1.point, i1.date, 'inc', sum(inc) FROM Income,
+(SELECT point, date FROM Income
+EXCEPT
+SELECT Income.point, Income.date FROM Income
+JOIN Outcome ON (Income.point=Outcome.point) AND
+(Income.date=Outcome.date)
+) AS i1
+WHERE i1.point=Income.point AND i1.date=Income.date
+GROUP BY i1.point, i1.date
+UNION
+SELECT o1.point, o1.date, 'out', sum(out) FROM Outcome,
+(SELECT point, date FROM Outcome
+EXCEPT
+SELECT Income.point, Income.date FROM Income
+JOIN Outcome ON (Income.point=Outcome.point) AND
+(Income.date=Outcome.date)
+) AS o1
+WHERE o1.point=Outcome.point AND o1.date=Outcome.date
+GROUP BY o1.point, o1.date
+
+```
+
+## 65
+
+https://sql-ex.ru/learn_exercises.php?LN=65
+
+```sql
+
+SELECT row_number() over(ORDER BY maker,s),t, type FROM
+(SELECT maker,type,
+CASE
+WHEN type='PC'
+THEN 0
+WHEN type='Laptop'
+THEN 1
+ELSE 2
+END AS s,
+CASE
+WHEN type='Laptop' AND (maker in (SELECT maker FROM Product WHERE
+type='PC'))
+THEN 
+WHEN type='Printer' AND ((maker in (SELECT maker FROM Product WHERE
+type='PC')) OR (maker in (SELECT maker FROM Product WHERE
+type='Laptop')))
+THEN ''
+ELSE maker
+END AS t
+FROM Product
+GROUP BY maker,type) AS t1
+ORDER BY maker, s
+
+```
+
+## 66
+
+https://sql-ex.ru/learn_exercises.php?LN=66
+
+```sql
+
+SELECT date, max(c) FROM
+(SELECT date,count(*) AS c FROM Trip,
+(SELECT trip_no,date FROM Pass_in_trip WHERE date>='2003-04-01' AND date<='2003-04-07' GROUP BY trip_no, date) AS t1
+WHERE Trip.trip_no=t1.trip_no AND town_from='Rostov'
+GROUP BY date
+UNION ALL
+SELECT '2003-04-01',0
+UNION ALL
+SELECT '2003-04-02',0
+UNION ALL
+SELECT '2003-04-03',0
+UNION ALL
+SELECT '2003-04-04',0
+UNION ALL
+SELECT '2003-04-05',0
+UNION ALL
+SELECT '2003-04-06',0
+UNION ALL
+SELECT '2003-04-07',0) AS t2
+GROUP BY date
+
+```
+
+## 67
+
+https://sql-ex.ru/learn_exercises.php?LN=67
+
+```sql
+
+SELECT count(*) 
+FROM
+(SELECT TOP 1 WITH TIES count(*) c, town_from, town_to from trip
+GROUP BY town_from, town_to
+ORDER BY c desc) as t;
+
+```
+
+## 68
+
+https://sql-ex.ru/learn_exercises.php?LN=68
+
+```sql
+
+SELECT count(*) 
+FROM (
+SELECT TOP 1 WITH TIES sum(c) cc, c1, c2 from (
+SELECT count(*) c, town_from c1, town_to c2 
+FROM trip
+WHERE town_from>=town_to
+GROUP BY town_from, town_to
+union all
+SELECT count(*) c,town_to, town_from 
+FROM trip
+WHERE town_to>town_from
+GROUP BY town_from, town_to
+) as t
+GROUP BY c1,c2
+ORDER BY cc desc
+) as tt;
+  
+```
+
+## 69
+
+https://sql-ex.ru/learn_exercises.php?LN=69
+
+```sql
+
+WITH q as (
+  SELECT
+    isnull(i.point, o.point) point
+    , isnull(i.date, o.date) date
+    , coalesce(sum(i.inc), 0) - coalesce(sum(o.out), 0) balance
+    FROM income i
+    full join outcome o
+      on i.point=o.point and i.date=o.date and i.code=o.code
+    GROUP BY isnull(i.point, o.point), isnull(i.date, o.date)
+)
+SELECT
+  point
+    -- 103 means format "dd/mm/yyyy"
+  , convert(varchar, date, 103) day
+  , sum(balance) over(partition by point order by date RANGE UNBOUNDED PRECEDING) as rem
+  FROM q
+ORDER BY point,date
+```
+## 70
+
+https://sql-ex.ru/learn_exercises.php?LN=70
+
+```sql
+
+SELECT DISTINCT o.battle
+FROM outcomes o
+LEFT JOIN ships s ON s.name = o.ship
+LEFT JOIN classes c ON o.ship = c.class OR s.class = c.class
+WHERE c.country IS NOT NULL
+GROUP BY c.country, o.battle
+HAVING COUNT(o.ship) >= 3;
+  
+```
+
+
+
 
 
